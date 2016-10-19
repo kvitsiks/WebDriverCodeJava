@@ -1,0 +1,61 @@
+package DataDrivenTesting;
+
+import java.util.concurrent.TimeUnit;
+
+import org.testng.annotations.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.Select;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.DataProvider;
+
+import com.thoughtworks.selenium.Selenium;
+import com.thoughtworks.selenium.webdriven.WebDriverBackedSelenium;
+
+public class WordpressLogin 
+{
+	WebDriver driver; //global variable
+	
+	@Test(dataProvider="wordpressData") //this TC is depending on our data provider
+	public void Login (String username,String password) throws InterruptedException //thread sleep
+	{
+		driver = new FirefoxDriver();
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		driver.get("http://demosite.center/wordpress/wp-login.php");
+		driver.findElement(By.id("user_login")).sendKeys(username);
+		driver.findElement(By.id("user_pass")).sendKeys(password);
+		driver.findElement(By.id("wp-submit")).click();
+		Thread.sleep(5000);
+		//we need to create some assertion
+		Assert.assertTrue(driver.getTitle().contains("Dashboard"), "Invalid credentials");//Invalid credentials appears if only TC failed
+		System.out.println("Title is verified, Success!");
+		
+	}
+	
+	@AfterMethod
+	public void tearDown()
+	{
+		driver.quit();
+	}
+	
+	@DataProvider(name="wordpressData")
+	//creating array
+	public Object[][] passData()
+	{
+		//array with 3 rows and 2 columns (login and password) 
+		Object[][] data = new Object[3][2];
+		//to the cell row 0 column 0 we are going to add admin1
+		data [0][0]="admin1";
+		data [0][1]="demo1";
+		
+		data [1][0]="admin";
+		data [1][1]="demo123";
+		
+		data [2][0]="admin2";
+		data [2][1]="demo1234";
+		return data;
+		
+	}
+}
